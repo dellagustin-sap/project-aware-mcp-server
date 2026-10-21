@@ -15,7 +15,7 @@ const CONTRIBUTION_REPOSITORY =
 const CONTRIBUTION_GUIDELINES_URI = "project://contribution-guidelines";
 
 /** Operations the catalog tool implements; anything else is a capability gap. */
-const SORTABLE_FIELDS = ["name", "forks"] as const;
+const SORTABLE_FIELDS = ["name", "forks", "stars"] as const;
 
 type SortableField = (typeof SORTABLE_FIELDS)[number];
 
@@ -109,12 +109,14 @@ export function createCatalogServer(options: CatalogServerOptions = {}): McpServ
         }
 
         const catalog = await readProjects();
-        const projects = catalog.map(({ stars: _stars, ...project }) => project);
+        const projects = [...catalog];
 
         if (sortBy === "name") {
           projects.sort((left, right) => left.name.localeCompare(right.name));
         } else if (sortBy === "forks") {
           projects.sort((left, right) => right.forks - left.forks);
+        } else if (sortBy === "stars") {
+          projects.sort((left, right) => right.stars - left.stars);
         }
 
         const result = { projects, capabilities: describeCapabilities(projectAware) };
